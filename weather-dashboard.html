@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link rel="stylesheet" href="style.css" />
+        <title>My Weather</title>
+    </head>
+    <body>
+        <header>Weather Dashboard</header>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 search-col">
+                    <p id="search">Search for the city:</p>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control city-name" placeholder="city name" aria-label="Recipient's username" aria-describedby="search-btn">
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-secondary" type="button" id="search-btn">Button</button>
+                        </div>
+                    </div>
+                    <div id="history"></div>
+                </div>
+                <div class="col-md-9" id="display">
+                    <h2 id="name"></h2>
+                    <img id="current"/>
+                    <p id="temp"></p>
+                    <p id="humidity"></p>
+                    <p id="wind-speed"></p>
+                    <p id="uvindex"><span id="index"></span></p>
+                    <div class="row" id="forecast">
+                        <div class="col-md-2" data-index="0">
+                            <p class="date"></p>
+                            <div class="icon">
+                                <img/>
+                            </div>
+                            <p class="temp"></p>
+                            <p class="humidity"></p>
+                        </div>
+                        <div class="col-md-2" data-index="1">
+                            <p class="date"></p>
+                            <div class="icon">
+                                <img/>
+                            </div>
+                            <p class="temp"></p>
+                            <p class="humidity"></p>
+                        </div>
+                        <div class="col-md-2" data-index="2">
+                            <p class="date"></p>
+                            <div class="icon">
+                                <img/>
+                            </div>
+                            <p class="temp"></p>
+                            <p class="humidity"></p>
+                        </div>
+                        <div class="col-md-2" data-index="3">
+                            <p class="date"></p>
+                            <div class="icon">
+                                <img/>
+                            </div>
+                            <p class="temp"></p>
+                            <p class="humidity"></p>
+                        </div>
+                        <div class="col-md-2" data-index="4">
+                            <p class="date"></p>
+                            <div class="icon">
+                                <img/>
+                            </div>
+                            <p class="temp"></p>
+                            <p class="humidity"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="moment.js"></script>
+        <script type="text/javascript">
+        var cities = [];
+
+        getStorage();
+
+        
+
+        var time = moment().subtract(0, 'days').calendar();
+        
+
+        $("#search-btn").on("click", function() {
+            var input = $(".city-name").val();
+            var queryURL1 = "http://api.openweathermap.org/data/2.5/weather?q=" + input + "&appid=dc7bb7f618413ee23c0c76f6ccabb5fe";
+            $.ajax({
+                url: queryURL1,
+                method: "GET"
+            }).then(function(response) {
+                console.log(queryURL1);
+                console.log(response);
+
+                var icon = response.weather[0].icon;
+                var queryURL2 = "http://openweathermap.org/img/wn/" + icon + "@2x.png";
+
+                
+
+                var name = response.name;
+                var temp = "Temperature: " + response.main.temp + " ℉";
+                var humidity = "Humidity: " + response.main.humidity + "%";
+                var windSpeed = "Wind Speed: " + response.wind.speed + " MPH";
+                
+
+                $("#name").text(name + " (" + time + ") ");
+                $("#current").attr("src", queryURL2);
+                $("#temp").text(temp);
+                $("#humidity").text(humidity);
+                $("#wind-speed").text(windSpeed);
+
+                var lat = response.coord.lat;
+                var lon = response.coord.lon;
+                var queryURL3 = "http://api.openweathermap.org/data/2.5/uvi?appid=dc7bb7f618413ee23c0c76f6ccabb5fe&lat=" + lat + "&lon=" + lon;
+                
+                $.ajax({
+                    url: queryURL3,
+                    method: "GET"
+                }).then(function(response) {
+                    console.log(response);
+
+                    var uvindex = response.value;
+                    $("#uvindex").text("UVIndex: ");
+                    $("#index").text(uvindex);
+                    
+                    if (uvindex <= 3) {
+                        $("#index").attr("style", "background-color:green")
+                    }
+                    else if (uvindex <= 7) {
+                        $("#index").attr("style", "background-color:orange")
+                    }
+                    else {
+                        $("#index").attr("style", "background-color:red")
+                    }
+                });
+
+                
+            });
+
+            
+
+            var queryURL4 = "";
+            $.ajax({
+                url: queryURL4,
+                method: "GET"
+            }).then(function(response) {
+                console.log(response);
+                for (i = 0; i < 5; i++) {
+
+                }
+            });
+            
+            
+            cities.push(input);
+            localStorage.setItem("history", JSON.stringify(cities));
+            
+        });
+
+        function getStorage() {
+            var history = JSON.parse(localStorage.getItem("history"));
+
+            if (history !== null) {
+                cities = history;
+                for (i = 0; i < cities.length; i++) {
+        
+                    var newDiv = $("<div>").text(cities[i]);
+                    $("#history").prepend(newDiv);
+        
+                }
+            }
+
+            // var index = cities.length - 1;
+            // var last = cities[index];
+
+            // var queryURL0 = "http://api.openweathermap.org/data/2.5/weather?q=" + last + "&appid=dc7bb7f618413ee23c0c76f6ccabb5fe";
+
+        };
+        </script>
+
+    </body>
+</html>

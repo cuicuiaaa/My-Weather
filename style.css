@@ -1,0 +1,14 @@
+header {
+    text-align: center;
+    font-size: 38px;
+    background-color: darkgrey;
+    padding: 10px;
+}
+
+.container {
+    margin-top: 10px;
+}
+
+#search {
+    font-size: larger;
+}
